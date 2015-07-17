@@ -47,10 +47,10 @@ private:
 	boost::asio::deadline_timer m_timer;
 	boost::posix_time::ptime m_last_time;
 	
-	std::list<Pack> m_pending_sends;
+	std::list<Pack> send_pending_list;
 	std::list<Pack> recved_uncomplete_list;
 
-	Pack recv_buffer;
+	uint8_t recv_buffer[1024];
 
 	int32_t m_timer_interval;
 
@@ -72,9 +72,9 @@ private:
 	void StartTimer();
 	
 	//收发完成回调
-	void HandleOpen();
+	void HandleOpen(const boost::system::error_code & error);
 	void HandleSend(const boost::system::error_code & error, Pack &pack);
-	void HandleRecv(const boost::system::error_code & error, Pack &pack);
+	void HandleRecv(const boost::system::error_code & error, int32_t actual_bytes);
 	void HandleTimer(const boost::system::error_code & error);
 	void HandleClose();
 
@@ -101,7 +101,7 @@ public:
 
 	void Open(const std::string & host, uint16_t port);
 
-	void PostSend(Pack &pack);
+	void PostSend(void *json_data, int len);
 	
 	void PostRecv();
 

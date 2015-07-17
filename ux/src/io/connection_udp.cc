@@ -5,8 +5,8 @@
 #include <boost/interprocess/detail/atomic.hpp>
 
 ConnectionUDP::ConnectionUDP(boost::shared_ptr< Hive > hive)
-: m_hive(hive), m_socket(hive->GetService()), m_io_strand(hive->GetService()), m_timer(hive->GetService()),m_timer_interval(1000),
-work_thread(boost::bind(ConnectionUDP::Run,boost::ref(*this)))
+: m_hive(hive), m_socket(hive->GetService()), m_io_strand(hive->GetService()), m_timer(hive->GetService()),m_timer_interval(100),
+work_thread(boost::bind(&ConnectionUDP::Run,boost::ref(*this)))
 {
 }
 
@@ -18,7 +18,7 @@ void ConnectionUDP::StartSend(Pack &pack, bool re_send)
 {
 	if (!re_send)
 	{
-		m_pending_sends.push_back(pack);
+		send_pending_list.push_back(pack);
 	}
 	m_socket.async_send_to(
 		boost::asio::buffer(pack.data(), pack.length()),
@@ -30,7 +30,7 @@ void ConnectionUDP::StartSend(Pack &pack, bool re_send)
 void ConnectionUDP::StartRecv()
 {
 	m_socket.async_receive_from(
-		boost::asio::buffer(recv_buffer.data(), recv_buffer.length()),
+		boost::asio::buffer(recv_buffer, sizeof(recv_buffer)/sizeof(uint8_t)),
 		remote_ep,
 		m_io_strand.wrap(boost::bind(&ConnectionUDP::HandleRecv, shared_from_this(), _1, _2)));
 }
@@ -43,7 +43,7 @@ void ConnectionUDP::StartTimer()
 }
 
 
-void ConnectionUDP::HandleOpen()
+void ConnectionUDP::HandleOpen(const boost::system::error_code & error)
 {
 	//open之后马上开始接收
 	StartRecv();
@@ -57,17 +57,17 @@ void ConnectionUDP::HandleSend(const boost::system::error_code & error, Pack &pa
 	}
 }
 
-void ConnectionUDP::HandleRecv(const boost::system::error_code & error, Pack &pack)
+void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t actual_bytes)
 {
+
 	if (m_hive->HasStopped())
 	{
 		return;
 	}
-	if (!error && pack.length>0)
+	if (!error && actual_bytes>0)
 	{
 		//收到数据包啦
-
-
+		Pack pack = Pack::decode(recv_buffer, actual_bytes);
 		//进行解析,判断类型
 		pack.decode_header();
 
@@ -98,7 +98,26 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, Pack &pa
 
 void ConnectionUDP::HandleTimer(const boost::system::error_code & error)
 {
-	
+	for (auto it = send_pending_list.begin(); it != send_pending_list.end(); )
+	{
+		Pack &pack = *it;
+		//遍历发送队列，重发或者删除
+		if (pack.out_of_resend_count())
+		{
+			//最大重发次数内
+			if (pack.should_resend())
+			{
+				//到了需要重发的时间
+				StartSend(*it, false);
+			}
+			++it;
+		}
+		else
+		{
+			//达到最大重发次数,删除
+			send_pending_list.erase(it);
+		}
+	}
 	StartTimer();
 }
 
@@ -133,7 +152,7 @@ void ConnectionUDP::Open(const std::string & host, uint16_t port)
 
 void ConnectionUDP::Close()
 {
-	m_io_strand.post(boost::bind(&ConnectionUDP::HandleClose, shared_from_this(), boost::asio::error::connection_reset));
+	m_io_strand.post(boost::bind(&ConnectionUDP::HandleClose, shared_from_this()));
 	work_thread.join();
 }
 
@@ -142,10 +161,13 @@ void ConnectionUDP::PostRecv()
 	m_io_strand.post(boost::bind(&ConnectionUDP::StartRecv, shared_from_this()));
 }
 
-void ConnectionUDP::PostSend(Pack &pack)
+void ConnectionUDP::PostSend(void *json_data, int len)
 {
 
-	m_io_strand.post(boost::bind(&ConnectionUDP::StartSend, shared_from_this(), pack));
+	Pack pack;
+	//pack.encode_header(type,len);
+	//memcpy(pack.data,json_data,len);
+	m_io_strand.post(boost::bind(&ConnectionUDP::StartSend, shared_from_this(), pack,false));
 }
 
 boost::asio::ip::udp::socket & ConnectionUDP::GetSocket()

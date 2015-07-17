@@ -31,17 +31,17 @@ void UX::AddMedia(std::string &ip, int port)
 
 void UX::SendHallData(void *json_data, int len)
 {
-	//room_connect->SendTo();
+	hall_connect->PostSend(json_data,len);
 }
 
 void UX::SendRoomData(void *json_data, int len)
 {
-	//room_connect->SendTo();
+	hall_connect->PostSend(json_data, len);
 }
 
 void UX::SendMediaData(int index_media, void *media_data, int len)
 {
-	//media_connect_vector[index_media]->SendTo()
+	media_connect_vector[index_media]->PostSend(media_data, len);
 }
 
 void UX::Exit()
