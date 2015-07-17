@@ -55,17 +55,54 @@ void ConnectionUDP::HandleSend(const boost::system::error_code & error, PackPtr 
 {
 	if (!error)
 	{
-		pack->SendSuccessOnce();
+		if (pack->IsAnsPack())
+		{
+			RemovePackFromSendList(pack);
+		}
+		else
+		{
+			pack->SendSuccessOnce();
+		}
 	}
 }
 
 void ConnectionUDP::RemovePackFromSendList(PackPtr pack)
 {
-	auto result=std::find(send_pending_list.begin(), send_pending_list.end(), pack);
-	if (result != send_pending_list.end())
+	auto it = send_pending_list.begin();
+	while( it != send_pending_list.end())
 	{
-		send_pending_list.erase(result);
+		if ((*it)->GetId() == pack->GetId())
+		{
+			send_pending_list.erase(it++);
+		}
+		else
+		{
+			++it;
+		}
 	}
+}
+
+void ConnectionUDP::RegroupPack()
+{
+	//重新组合包
+	for (auto it = recved_uncomplete_list.begin(); it != recved_uncomplete_list.end();)
+	{
+		PackPtr pack = *it;
+		//TODO
+	}
+}
+
+bool ConnectionUDP::CheckSmallPackExist(PackPtr pack)
+{
+	for (auto it = recved_uncomplete_list.begin(); it != recved_uncomplete_list.end();++it)
+	{
+		PackPtr pack_inlist = *it;
+		if (pack_inlist->GetId() == pack->GetId() && pack_inlist->GetBigId() == pack->GetBigId())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t actual_bytes)
@@ -75,29 +112,43 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t 
 	{
 		return;
 	}
-	if (!error && actual_bytes>0)
+	if (!error && actual_bytes>2 && (recv_buffer[2] == 1 || recv_buffer[2] == 2))
 	{
 		//收到数据包啦，进行解析,判断类型
 		PackPtr pack = Pack::DecodeBuffer(recv_buffer, actual_bytes);
 		
-		//回复包,表示对方已经收到了，就更新队列
 		if (pack->IsAnsPack())
 		{
+			//回复包,表示对方已经收到了，就更新队列
 			RemovePackFromSendList(pack);
-		}
-		else if (!pack->IsComplete())
-		{
-			//从接收不完整包队列里面查找，如果找到就更新，并判断是否完成，完整了从队列里面移除
-
-			//如果找不到就放到队列
-			recved_uncomplete_list.push_back(pack);
 		}
 		else
 		{
-			//完整包就送出去
-			if (data_callback_)
+			if (pack->needAns())
 			{
-				data_callback_(pack);
+				//需要回复，就发一个ans包
+				PackPtr ans_pack = Pack::EncodeAnsPack(pack->GetId());
+				StartSend(ans_pack, false);
+			}
+
+			if (pack->IsSmallPack())
+			{
+				if (!CheckSmallPackExist(pack))
+				{
+					//如果是不完整的包，先放到队列,而且不是已经已经收到过的
+					recved_uncomplete_list.push_back(pack);
+				}
+				
+				//重组包
+				RegroupPack();
+			}
+			else
+			{
+				//完整包就送出去
+				if (data_callback_)
+				{
+					data_callback_((char*)pack->body());
+				}
 			}
 		}
 	}
@@ -107,27 +158,27 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t 
 
 void ConnectionUDP::HandleTimer(const boost::system::error_code & error)
 {
-	//for (auto it = send_pending_list.begin(); it != send_pending_list.end(); )
-	//{
-	//	PackPtr &pack = *it;
-	//	//遍历发送队列，重发或者删除
-	//	if (pack->out_of_resend_count())
-	//	{
-	//		//最大重发次数内
-	//		if (pack->should_resend())
-	//		{
-	//			//到了需要重发的时间
-	//			StartSend(*it, false);
-	//		}
-	//		++it;
-	//	}
-	//	else
-	//	{
-	//		//达到最大重发次数,删除
-	//		send_pending_list.erase(it);
-	//	}
-	//}
-	//StartTimer();
+	//遍历发送队列，重发或者删除
+	for (auto it = send_pending_list.begin(); it != send_pending_list.end(); )
+	{
+		PackPtr pack = *it;
+		if (!pack->out_of_resend_count())
+		{
+			//最大重发次数内
+			if (pack->should_resend())
+			{
+				//到了需要重发的时间
+				StartSend(*it, true);
+			}
+			++it;
+		}
+		else
+		{
+			//达到最大重发次数,删除
+			send_pending_list.erase(it++);
+		}
+	}
+	StartTimer();
 }
 
 void ConnectionUDP::HandleClose()

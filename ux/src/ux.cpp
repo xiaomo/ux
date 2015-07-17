@@ -5,7 +5,7 @@ hive_ptr(new Hive()),
 hall_connect(new ConnectionUDP(hive_ptr)),
 room_connect(new ConnectionUDP(hive_ptr))
 {
-
+	hall_connect->RegisterDataCallback(boost::bind(&UX::OnDataCallback,boost::ref(*this),_1));
 }
 
 UX::~UX()
@@ -14,6 +14,7 @@ UX::~UX()
 
 void UX::StartHall(std::string &ip, int port)
 {
+
 	hall_connect->Open(ip, port);
 }
 
@@ -44,6 +45,13 @@ void UX::SendMediaData(int index_media, void *media_data, int len)
 	media_connect_vector[index_media]->PostSend(media_data, len);
 }
 
+void UX::OnDataCallback(char *data)
+{
+	if (hall_data_callback_ != NULL)
+	{
+		hall_data_callback_(data);
+	}
+}
 void UX::Exit()
 {
 	media_connect_vector.clear();

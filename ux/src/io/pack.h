@@ -69,25 +69,25 @@ public:
 		std::cout << "开始封包++++++++++" << count << std::endl;
 		for (int i = 0; i < count; i++)
 		{
-			TPack pack;
-			pack.ID = bid+i;
+			TPack pack = {0};
+			pack.ID = bid+1+i;
 			pack.NeedAns = 1;
 			pack.Time = 0;
 			pack.bID = bid;
-			pack.sID = bid;
-			pack.eID = bid+count - 1;
+			pack.sID = bid+1;
+			pack.eID = bid+count;
 			pack.Size = len>MAX_DATA_SIZE ? MAX_DATA_SIZE : len;
 			pack.Data = (uint8_t*)json_data + i * MAX_DATA_SIZE;
 			len -= pack.Size;
 			list.push_back(boost::make_shared<Pack>(pack));
-			std::cout << "封包:"<<bid<<" size:"<<pack.Size<< std::endl;
+			std::cout << "封包:" << bid << "/" << pack.ID << " size:" << pack.Size << std::endl;
 		}
 		std::cout << "结束封包++++++++++" << std::endl;
 	}
 
 	static PackPtr EncodeAnsPack(uint32_t id)
 	{
-		TAnsPack pack;
+		TAnsPack pack = { 0 };
 		pack.ID = id;
 		pack.Action = 0;
 		pack.crc = 0;
@@ -116,7 +116,7 @@ public:
 		pack_header_->Falg = 2;
 		pack_header_->Key = 0;
 		pack_header_->Cmd = 1;
-		memcpy(data_, (void *)&pack_header_, sizeof(TPackHead));
+		//memcpy(data_, (void *)&pack_header_, sizeof(TPackHead));
 
 		//拷贝包信息
 		send_pack_header_ = (TPack *)(data_ + sizeof(TPackHead));
@@ -137,7 +137,7 @@ public:
 		pack_header_->Falg = 2;
 		pack_header_->Key = 0;
 		pack_header_->Cmd = 2;
-		memcpy(data_, (void *)&pack_header_, sizeof(TPackHead));
+		//memcpy(data_, (void *)&pack_header_, sizeof(TPackHead));
 
 		//拷贝包信息
 		ans_pack_header_ = (TAnsPack *)(data_ + sizeof(TPackHead));
@@ -146,8 +146,6 @@ public:
 
 	void Decode(uint8_t *buffer, int len)
 	{
-		assert(buffer[2] == 1 || buffer[2] == 2);
-
 		MallocData(len);
 		total_len_ = len;
 		memcpy(data_ ,buffer, len);
@@ -183,6 +181,19 @@ public:
 		return data_;
 	}
 
+	uint8_t * body()
+	{
+		if (IsAnsPack())
+		{
+			return NULL;
+		}
+		else
+		{
+			return data_ + sizeof(TPackHead)+sizeof(TPack)-sizeof(uint8_t *);
+		}
+		
+	}
+
 	size_t length() const
 	{
 		return total_len_;
@@ -202,14 +213,48 @@ public:
 		}
 
 	}
+
+	int GetBigId() const
+	{
+		if (pack_header_->Cmd == TPack_CMD)
+		{
+			//普通包
+			return send_pack_header_->bID;
+		}
+		else
+		{
+			return ans_pack_header_->ID;
+			//回复包,不应该出现这种情况
+		}
+
+	}
+
 	bool IsAnsPack()
 	{
 		return pack_header_->Cmd == TAnsPack_CMD;
 	}
-
-	bool IsComplete()
+	bool needAns()
 	{
-		return true;
+		if (IsAnsPack())
+		{
+			return false;
+		}
+		else
+		{
+			send_pack_header_->NeedAns != 0;
+		}
+	}
+
+	bool IsSmallPack()
+	{
+		if (IsAnsPack())
+		{
+			return false;
+		}
+		else
+		{
+			send_pack_header_->sID < send_pack_header_->eID;
+		}
 	}
 
 	void SendSuccessOnce()

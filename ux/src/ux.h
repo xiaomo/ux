@@ -40,6 +40,8 @@ public:
 		this->media_data_callback_ = cb;
 	}
 
+	void OnDataCallback(char *data);
+
 protected:
 	typedef boost::shared_ptr<Hive> HivePtr;
 	typedef boost::shared_ptr<ConnectionUDP> ConnectPtr;

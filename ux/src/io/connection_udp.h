@@ -39,7 +39,7 @@ class ConnectionUDP : public boost::enable_shared_from_this< ConnectionUDP >
 {
 	friend class Hive;
 protected:
-	typedef boost::function<void(PackPtr &pack)> DataCallback;
+	typedef boost::function<void(char *)> DataCallback;
 private:
 	boost::shared_ptr< Hive > m_hive;
 	boost::asio::ip::udp::socket m_socket;
@@ -69,6 +69,8 @@ private:
 	ConnectionUDP & operator =(const ConnectionUDP & rhs);
 
 	void RemovePackFromSendList(PackPtr pack);
+	void RegroupPack();
+	bool CheckSmallPackExist(PackPtr pack);
 
 	//真正的发送
 	void StartSend(PackPtr pack, bool re_send);
