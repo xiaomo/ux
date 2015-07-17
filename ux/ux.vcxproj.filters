@@ -39,10 +39,7 @@
     <ClCompile Include="src\io\pack.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\media\audio_decoder_ff.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\media\video_decoder_ff.cpp">
+    <ClCompile Include="src\io\connection_udp_media.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,34 +65,7 @@
     <ClInclude Include="src\io\pack.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\media\video_packet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_decoder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_decoder_ff.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_frame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_packet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\av_codec.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\utility.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_decoder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_decoder_ff.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_frame.h">
+    <ClInclude Include="src\io\connection_udp_media.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

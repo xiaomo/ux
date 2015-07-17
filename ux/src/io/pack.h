@@ -42,10 +42,6 @@ typedef struct TAnsPack
 
 #pragma pack() 
 
-
-
-
-
 class Pack : public boost::enable_shared_from_this< Pack >
 {
 
@@ -220,6 +216,49 @@ public:
 		{
 			//普通包
 			return send_pack_header_->bID;
+		}
+		else
+		{
+			return ans_pack_header_->ID;
+			//回复包,不应该出现这种情况
+		}
+
+	}
+
+	int GetDataSize() const
+	{
+		if (pack_header_->Cmd == TPack_CMD)
+		{
+			//普通包
+			return send_pack_header_->Size;
+		}
+		else
+		{
+			return 0;
+		}
+
+	}
+	int GetStartId() const
+	{
+		if (pack_header_->Cmd == TPack_CMD)
+		{
+			//普通包
+			return send_pack_header_->sID;
+		}
+		else
+		{
+			return ans_pack_header_->ID;
+			//回复包,不应该出现这种情况
+		}
+
+	}
+
+	int GetEndId() const
+	{
+		if (pack_header_->Cmd == TPack_CMD)
+		{
+			//普通包
+			return send_pack_header_->eID;
 		}
 		else
 		{

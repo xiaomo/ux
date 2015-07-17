@@ -82,13 +82,96 @@ void ConnectionUDP::RemovePackFromSendList(PackPtr pack)
 	}
 }
 
-void ConnectionUDP::RegroupPack()
+void ConnectionUDP::RegroupPack(PackPtr pack)
 {
-	//重新组合包
-	for (auto it = recved_uncomplete_list.begin(); it != recved_uncomplete_list.end();)
+	//插入到队列
+	auto it = recved_uncomplete_list.begin();
+	if (it == recved_uncomplete_list.end())
 	{
-		PackPtr pack = *it;
-		//TODO
+		//空队列直接插入
+		recved_uncomplete_list.insert(it, pack);
+		return;
+	}
+
+	int total_count_in_big_pack = pack->GetEndId() - pack->GetStartId() + 1;
+	//计算当前大包一共有多少个小包
+	int alredy_count = 0;
+	int total_size = 0;
+	bool inserted = false;
+
+	std::list<PackPtr>::iterator  big_pack_start_it;
+
+	while (it != recved_uncomplete_list.end())
+	{
+		PackPtr pack_inlist = *it;
+		if (pack_inlist->GetBigId() == pack->GetBigId())
+		{
+			big_pack_start_it = it;
+
+			if (!inserted)
+			{
+				if (pack_inlist->GetId() == pack_inlist->GetId())
+				{
+					//大小包id都相同，丢掉就是
+					return;
+				}
+				else if (pack_inlist->GetId() > pack_inlist->GetId())
+				{
+					recved_uncomplete_list.insert(it, pack);
+					inserted = true;
+					alredy_count++;
+					total_size += pack->GetDataSize();
+					big_pack_start_it--;
+				}
+				else
+				{
+					++it;
+					alredy_count++;
+					total_size += pack_inlist->GetDataSize();
+				}
+			}
+			else
+			{
+				alredy_count++;
+				total_size += pack_inlist->GetDataSize();
+			}
+		}
+		else if (pack_inlist->GetBigId() > pack->GetBigId() && !inserted)
+		{
+			recved_uncomplete_list.insert(it, pack);
+			alredy_count++;
+			total_size += pack->GetDataSize();
+		}
+		else
+		{
+			++it;
+		}
+	}
+	//插入到末尾
+	if (!inserted)
+	{
+		recved_uncomplete_list.insert(recved_uncomplete_list.end(), pack);
+		return;
+	}
+
+	assert(alredy_count <= total_count_in_big_pack);
+	if (alredy_count == total_count_in_big_pack)
+	{
+		char * data = (char*)malloc(total_size);
+		//当前大包已经接收完成，需要组装
+		int alredy_copy_count = 0;
+		for (int i = 0; i < alredy_count; i++)
+		{
+			PackPtr pack_inlist = *big_pack_start_it;
+			memcpy(data + alredy_copy_count, pack_inlist->body(), pack_inlist->GetDataSize());
+			alredy_copy_count += pack_inlist->GetDataSize();
+			++big_pack_start_it;
+		}
+		//完整包就送出去
+		if (data_callback_)
+		{
+			data_callback_(data);
+		}
 	}
 }
 
@@ -133,14 +216,8 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t 
 
 			if (pack->IsSmallPack())
 			{
-				if (!CheckSmallPackExist(pack))
-				{
-					//如果是不完整的包，先放到队列,而且不是已经已经收到过的
-					recved_uncomplete_list.push_back(pack);
-				}
-				
 				//重组包
-				RegroupPack();
+				RegroupPack(pack);
 			}
 			else
 			{
@@ -214,11 +291,6 @@ void ConnectionUDP::Close()
 {
 	m_io_strand.post(boost::bind(&ConnectionUDP::HandleClose, shared_from_this()));
 	work_thread.join();
-}
-
-void ConnectionUDP::PostRecv()
-{
-	m_io_strand.post(boost::bind(&ConnectionUDP::StartRecv, shared_from_this()));
 }
 
 void ConnectionUDP::PostSend(void *json_data, int len)

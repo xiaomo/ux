@@ -7,6 +7,7 @@
 
 #include "io/hive.h"
 #include "io/connection_udp.h"
+#include "io/connection_udp_media.h"
 
 //没有实现项目独有的命名空间
 class UX
@@ -16,11 +17,10 @@ public:
 	~UX();
 	void StartHall(std::string &ip, int port);
 	void StartRoom(std::string &ip, int port);
-	void AddMedia(std::string &ip, int port);
+	void AddMedia(std::string &ip, int port, int user_id);
 
 	void SendHallData(void *json_data,int len);
 	void SendRoomData(void *json_data, int len);
-	void SendMediaData(int index_media, void *media_data, int len);
 	void Exit();
 
 	template<typename T>
@@ -41,17 +41,18 @@ public:
 	}
 
 	void OnDataCallback(char *data);
-
+	void OnMediaDataCallback(int index, int type, uint8_t *data, int len);
 protected:
 	typedef boost::shared_ptr<Hive> HivePtr;
 	typedef boost::shared_ptr<ConnectionUDP> ConnectPtr;
+	typedef boost::shared_ptr<ConnectionUDPMedia> ConnectMediaPtr;
 	typedef boost::function<void(char *data)> HallDataCallback;
 	typedef boost::function<void(int roomid,char *data)> RoomDataCallback;
-	typedef boost::function<void(int index,char *data)> MediaDataCallback;
+	typedef boost::function<void(int index, int type,uint8_t *data ,int len)> MediaDataCallback;
 private:
 	HivePtr hive_ptr;
 	ConnectPtr hall_connect,room_connect;
-	std::vector<ConnectPtr> media_connect_vector;
+	std::vector<ConnectMediaPtr> media_connect_vector;
 	HallDataCallback hall_data_callback_ = NULL;
 	RoomDataCallback room_data_callback_ = NULL;
 	MediaDataCallback media_data_callback_ = NULL;

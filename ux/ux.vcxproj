@@ -39,7 +39,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>F:\work\9158\ux\ux\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,30 +67,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\io\connection_udp.cc" />
+    <ClCompile Include="src\io\connection_udp_media.cc" />
     <ClCompile Include="src\io\hive.cc" />
     <ClCompile Include="src\io\media_pack.cc" />
     <ClCompile Include="src\io\json_pack.cc" />
     <ClCompile Include="src\io\pack.cc" />
-    <ClCompile Include="src\media\audio_decoder_ff.cpp" />
-    <ClCompile Include="src\media\video_decoder_ff.cpp" />
     <ClCompile Include="src\test.cc" />
     <ClCompile Include="src\ux.cpp" />
     <ClCompile Include="src\ux_jni.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\connection_udp.h" />
+    <ClInclude Include="src\io\connection_udp_media.h" />
     <ClInclude Include="src\io\hive.h" />
     <ClInclude Include="src\io\pack.h" />
-    <ClInclude Include="src\media\audio_decoder.h" />
-    <ClInclude Include="src\media\audio_decoder_ff.h" />
-    <ClInclude Include="src\media\audio_frame.h" />
-    <ClInclude Include="src\media\audio_packet.h" />
-    <ClInclude Include="src\media\av_codec.h" />
-    <ClInclude Include="src\media\utility.hpp" />
-    <ClInclude Include="src\media\video_decoder.h" />
-    <ClInclude Include="src\media\video_decoder_ff.h" />
-    <ClInclude Include="src\media\video_frame.h" />
-    <ClInclude Include="src\media\video_packet.h" />
     <ClInclude Include="src\network\MediaPack.h" />
     <ClInclude Include="src\io\media_pack.h" />
     <ClInclude Include="src\io\json_pack.h" />
