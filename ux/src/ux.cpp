@@ -58,6 +58,6 @@ void UX::OnMediaDataCallback(int index, int type, uint8_t *data, int len)
 }
 void UX::Exit()
 {
-	media_connect_vector.clear();
 	hive_ptr->Stop();
+	media_connect_vector.clear();
 }

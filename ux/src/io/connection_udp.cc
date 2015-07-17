@@ -99,23 +99,28 @@ void ConnectionUDP::RegroupPack(PackPtr pack)
 	int total_size = 0;
 	bool inserted = false;
 
-	std::list<PackPtr>::iterator  big_pack_start_it;
+
+	std::list<PackPtr>::iterator  big_pack_start_it = recved_uncomplete_list.end();
 
 	while (it != recved_uncomplete_list.end())
 	{
 		PackPtr pack_inlist = *it;
 		if (pack_inlist->GetBigId() == pack->GetBigId())
 		{
-			big_pack_start_it = it;
+			if (big_pack_start_it == recved_uncomplete_list.end())
+			{
+				//记录第一个小包的位置
+				big_pack_start_it = it;
+			}
 
 			if (!inserted)
 			{
-				if (pack_inlist->GetId() == pack_inlist->GetId())
+				if (pack_inlist->GetId() == pack->GetId())
 				{
 					//大小包id都相同，丢掉就是
 					return;
 				}
-				else if (pack_inlist->GetId() > pack_inlist->GetId())
+				else if (pack_inlist->GetId() > pack->GetId())
 				{
 					recved_uncomplete_list.insert(it, pack);
 					inserted = true;
@@ -151,7 +156,8 @@ void ConnectionUDP::RegroupPack(PackPtr pack)
 	if (!inserted)
 	{
 		recved_uncomplete_list.insert(recved_uncomplete_list.end(), pack);
-		return;
+		alredy_count++;
+		total_size += pack->GetDataSize();
 	}
 
 	assert(alredy_count <= total_count_in_big_pack);
@@ -165,7 +171,7 @@ void ConnectionUDP::RegroupPack(PackPtr pack)
 			PackPtr pack_inlist = *big_pack_start_it;
 			memcpy(data + alredy_copy_count, pack_inlist->body(), pack_inlist->GetDataSize());
 			alredy_copy_count += pack_inlist->GetDataSize();
-			++big_pack_start_it;
+			recved_uncomplete_list.erase(big_pack_start_it++);
 		}
 		//完整包就送出去
 		if (data_callback_)

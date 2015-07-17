@@ -65,29 +65,33 @@ void ConnectionUDPMedia::RegroupPack(MediaPackPtr pack)
 		return;
 	}
 
-	int total_count_in_big_pack = pack->GetEndId() - pack->GetStartId() + 1;
+	int total_count_in_big_pack = pack->GetCount();
 	//计算当前大包一共有多少个小包
 	int alredy_count = 0;
 	int total_size = 0;
 	bool inserted = false;
 
-	std::list<MediaPackPtr>::iterator  big_pack_start_it;
+	std::list<MediaPackPtr>::iterator  big_pack_start_it = recved_uncomplete_list.end();
 
 	while (it != recved_uncomplete_list.end())
 	{
 		MediaPackPtr pack_inlist = *it;
 		if (pack_inlist->GetId() == pack->GetId())
 		{
-			big_pack_start_it = it;
-
+			if (big_pack_start_it == recved_uncomplete_list.end())
+			{
+				//记录第一个小包的位置
+				big_pack_start_it = it;
+			}
+			
 			if (!inserted)
 			{
-				if (pack_inlist->GetSmallId() == pack_inlist->GetSmallId())
+				if (pack_inlist->GetSmallId() == pack->GetSmallId())
 				{
 					//大小包id都相同，丢掉就是
 					return;
 				}
-				else if (pack_inlist->GetSmallId() > pack_inlist->GetSmallId())
+				else if (pack_inlist->GetSmallId() > pack->GetSmallId())
 				{
 					recved_uncomplete_list.insert(it, pack);
 					inserted = true;
@@ -123,7 +127,8 @@ void ConnectionUDPMedia::RegroupPack(MediaPackPtr pack)
 	if (!inserted)
 	{
 		recved_uncomplete_list.insert(recved_uncomplete_list.end(), pack);
-		return;
+		alredy_count++;
+		total_size += pack->GetDataSize();
 	}
 
 	assert(alredy_count <= total_count_in_big_pack);
@@ -139,8 +144,9 @@ void ConnectionUDPMedia::RegroupPack(MediaPackPtr pack)
 			MediaPackPtr pack_inlist = *big_pack_start_it;
 			memcpy(data + alredy_copy_count, pack_inlist->body(), pack_inlist->GetDataSize());
 			alredy_copy_count += pack_inlist->GetDataSize();
-			++big_pack_start_it;
+			recved_uncomplete_list.erase(big_pack_start_it++);
 		}
+		std::cout << alredy_count << "个小包组成一个大包：" << total_size << std::endl;
 		//完整包就送出去
 		if (data_callback_)
 		{

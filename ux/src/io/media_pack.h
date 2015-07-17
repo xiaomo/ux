@@ -98,6 +98,15 @@ public:
 		return boost::make_shared<MediaPack>(pack);
 	}
 
+	static MediaPackPtr EncodeMediaPackReq(uint32_t user_id,int pack_id)
+	{
+		TMediaPackReq pack = { 0 };
+		pack.Cmd = 21;
+		pack.UserID = user_id;
+		pack.ID = pack_id;
+		return boost::make_shared<MediaPack>(pack);
+	}
+
 	static MediaPackPtr DecodeBuffer(uint8_t *data, int len)
 	{
 		MediaPackPtr pack_ptr = boost::make_shared<MediaPack>();
@@ -126,6 +135,16 @@ public:
 		memcpy(data_, (void *)&p, total_len_);
 	};
 
+	MediaPack(TMediaPackReq &p)
+	{
+		//分配空间
+		total_len_ = sizeof(TMediaPackReq);
+		MallocData(total_len_);
+
+		memcpy(data_, (void *)&p, total_len_);
+	};
+	
+
 	void Decode(uint8_t *buffer, int len)
 	{
 		assert(buffer[0] == 20);
@@ -133,7 +152,7 @@ public:
 		total_len_ = len;
 		memcpy(data_, buffer, len);
 		media_pack_ = (TMediaPack*)data_;
-		uint8_t av_type = *((uint8_t*)data_ + sizeof(TMediaPack));
+		av_type = *((uint8_t*)data_ + sizeof(TMediaPack));
 		if (av_type == AUDIO)
 		{
 			//音频数据包
@@ -213,13 +232,12 @@ public:
 	{
 		if (av_type == AUDIO)
 		{
-			false;
+			return false;
 		}
 		else  if (av_type == VIDEO)
 		{
 			//视频数据包
-			return media_pack_video_->sCount>0;
-
+			return media_pack_video_->sCount>1;
 		}
 		else
 		{
@@ -290,7 +308,7 @@ public:
 		}
 	}
 
-	int GetEndId() const
+	int GetCount() const
 	{
 		if (av_type == AUDIO)
 		{
