@@ -71,6 +71,8 @@
     <ClCompile Include="src\io\media_pack.cc" />
     <ClCompile Include="src\io\json_pack.cc" />
     <ClCompile Include="src\io\pack.cc" />
+    <ClCompile Include="src\media\audio_decoder_ff.cpp" />
+    <ClCompile Include="src\media\video_decoder_ff.cpp" />
     <ClCompile Include="src\test.cc" />
     <ClCompile Include="src\ux.cpp" />
     <ClCompile Include="src\ux_jni.cc" />
@@ -79,6 +81,16 @@
     <ClInclude Include="src\io\connection_udp.h" />
     <ClInclude Include="src\io\hive.h" />
     <ClInclude Include="src\io\pack.h" />
+    <ClInclude Include="src\media\audio_decoder.h" />
+    <ClInclude Include="src\media\audio_decoder_ff.h" />
+    <ClInclude Include="src\media\audio_frame.h" />
+    <ClInclude Include="src\media\audio_packet.h" />
+    <ClInclude Include="src\media\av_codec.h" />
+    <ClInclude Include="src\media\utility.hpp" />
+    <ClInclude Include="src\media\video_decoder.h" />
+    <ClInclude Include="src\media\video_decoder_ff.h" />
+    <ClInclude Include="src\media\video_frame.h" />
+    <ClInclude Include="src\media\video_packet.h" />
     <ClInclude Include="src\network\MediaPack.h" />
     <ClInclude Include="src\io\media_pack.h" />
     <ClInclude Include="src\io\json_pack.h" />

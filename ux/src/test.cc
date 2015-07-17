@@ -31,8 +31,8 @@ int main()
 	
 	//开始大厅数据通讯
 	ux_ptr->RegisterHallDataCallback(boost::bind(HallDataCallback,_1));
-	ux_ptr->StartHall(std::string("222.186.3.27"), 4100);
-	//ux_ptr->StartHall(std::string("222.186.57.54"), 5005);
+	//ux_ptr->StartHall(std::string("222.186.3.27"), 4100);
+	ux_ptr->StartHall(std::string("222.186.57.54"), 5005);
 	
 	////开始房间数据通讯
 	//ux_ptr->RegisterRoomDataCallback(boost::bind(RoomDataCallback,_1,_2));
