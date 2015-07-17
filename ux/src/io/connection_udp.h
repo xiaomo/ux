@@ -18,6 +18,8 @@
 
 #include "io/hive.h"
 
+typedef boost::shared_ptr<Pack> PackPtr;
+
 using boost::uint64_t;
 using boost::uint32_t;
 using boost::uint16_t;
@@ -37,7 +39,7 @@ class ConnectionUDP : public boost::enable_shared_from_this< ConnectionUDP >
 {
 	friend class Hive;
 protected:
-	typedef boost::function<void(Pack &pack)> DataCallback;
+	typedef boost::function<void(PackPtr &pack)> DataCallback;
 private:
 	boost::shared_ptr< Hive > m_hive;
 	boost::asio::ip::udp::socket m_socket;
@@ -47,8 +49,8 @@ private:
 	boost::asio::deadline_timer m_timer;
 	boost::posix_time::ptime m_last_time;
 	
-	std::list<Pack> send_pending_list;
-	std::list<Pack> recved_uncomplete_list;
+	std::list<PackPtr> send_pending_list;
+	std::list<PackPtr> recved_uncomplete_list;
 
 	uint8_t recv_buffer[1024];
 
@@ -66,14 +68,16 @@ private:
 	ConnectionUDP(const ConnectionUDP & rhs);
 	ConnectionUDP & operator =(const ConnectionUDP & rhs);
 
+	void RemovePackFromSendList(PackPtr pack);
+
 	//真正的发送
-	void StartSend(Pack &pack,bool re_send);
+	void StartSend(PackPtr pack, bool re_send);
 	void StartRecv();
 	void StartTimer();
 	
 	//收发完成回调
 	void HandleOpen(const boost::system::error_code & error);
-	void HandleSend(const boost::system::error_code & error, Pack &pack);
+	void HandleSend(const boost::system::error_code & error, PackPtr pack);
 	void HandleRecv(const boost::system::error_code & error, int32_t actual_bytes);
 	void HandleTimer(const boost::system::error_code & error);
 	void HandleClose();

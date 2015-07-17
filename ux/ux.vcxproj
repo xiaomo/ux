@@ -70,6 +70,7 @@
     <ClCompile Include="src\io\hive.cc" />
     <ClCompile Include="src\io\media_pack.cc" />
     <ClCompile Include="src\io\json_pack.cc" />
+    <ClCompile Include="src\io\pack.cc" />
     <ClCompile Include="src\test.cc" />
     <ClCompile Include="src\ux.cpp" />
     <ClCompile Include="src\ux_jni.cc" />

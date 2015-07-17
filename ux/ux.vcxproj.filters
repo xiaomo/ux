@@ -36,6 +36,9 @@
     <ClCompile Include="src\io\json_pack.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\io\pack.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ux.h">

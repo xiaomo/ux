@@ -4,6 +4,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 
+#include "io/pack.h"
+
 ConnectionUDP::ConnectionUDP(boost::shared_ptr< Hive > hive)
 : m_hive(hive), m_socket(hive->GetService()), m_io_strand(hive->GetService()), m_timer(hive->GetService()),m_timer_interval(100),
 work_thread(boost::bind(&ConnectionUDP::Run,boost::ref(*this)))
@@ -14,14 +16,14 @@ ConnectionUDP::~ConnectionUDP()
 {
 }
 
-void ConnectionUDP::StartSend(Pack &pack, bool re_send)
+void ConnectionUDP::StartSend(PackPtr pack, bool re_send)
 {
 	if (!re_send)
 	{
 		send_pending_list.push_back(pack);
 	}
 	m_socket.async_send_to(
-		boost::asio::buffer(pack.data(), pack.length()),
+		boost::asio::buffer(pack->data(), pack->length()),
 		remote_ep,
 		m_io_strand.wrap(boost::bind(&ConnectionUDP::HandleSend, shared_from_this(), boost::asio::placeholders::error, pack)));
 
@@ -49,11 +51,20 @@ void ConnectionUDP::HandleOpen(const boost::system::error_code & error)
 	StartRecv();
 }
 
-void ConnectionUDP::HandleSend(const boost::system::error_code & error, Pack &pack)
+void ConnectionUDP::HandleSend(const boost::system::error_code & error, PackPtr pack)
 {
 	if (!error)
 	{
-		pack.SendSuccessOnce();
+		pack->SendSuccessOnce();
+	}
+}
+
+void ConnectionUDP::RemovePackFromSendList(PackPtr pack)
+{
+	auto result=std::find(send_pending_list.begin(), send_pending_list.end(), pack);
+	if (result != send_pending_list.end())
+	{
+		send_pending_list.erase(result);
 	}
 }
 
@@ -66,17 +77,15 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t 
 	}
 	if (!error && actual_bytes>0)
 	{
-		//收到数据包啦
-		Pack pack = Pack::decode(recv_buffer, actual_bytes);
-		//进行解析,判断类型
-		pack.decode_header();
-
-		//回复包就更新队列
-		if (pack.IsAnsPack())
+		//收到数据包啦，进行解析,判断类型
+		PackPtr pack = Pack::DecodeBuffer(recv_buffer, actual_bytes);
+		
+		//回复包,表示对方已经收到了，就更新队列
+		if (pack->IsAnsPack())
 		{
-
+			RemovePackFromSendList(pack);
 		}
-		else if (!pack.IsComplete())
+		else if (!pack->IsComplete())
 		{
 			//从接收不完整包队列里面查找，如果找到就更新，并判断是否完成，完整了从队列里面移除
 
@@ -98,27 +107,27 @@ void ConnectionUDP::HandleRecv(const boost::system::error_code & error, int32_t 
 
 void ConnectionUDP::HandleTimer(const boost::system::error_code & error)
 {
-	for (auto it = send_pending_list.begin(); it != send_pending_list.end(); )
-	{
-		Pack &pack = *it;
-		//遍历发送队列，重发或者删除
-		if (pack.out_of_resend_count())
-		{
-			//最大重发次数内
-			if (pack.should_resend())
-			{
-				//到了需要重发的时间
-				StartSend(*it, false);
-			}
-			++it;
-		}
-		else
-		{
-			//达到最大重发次数,删除
-			send_pending_list.erase(it);
-		}
-	}
-	StartTimer();
+	//for (auto it = send_pending_list.begin(); it != send_pending_list.end(); )
+	//{
+	//	PackPtr &pack = *it;
+	//	//遍历发送队列，重发或者删除
+	//	if (pack->out_of_resend_count())
+	//	{
+	//		//最大重发次数内
+	//		if (pack->should_resend())
+	//		{
+	//			//到了需要重发的时间
+	//			StartSend(*it, false);
+	//		}
+	//		++it;
+	//	}
+	//	else
+	//	{
+	//		//达到最大重发次数,删除
+	//		send_pending_list.erase(it);
+	//	}
+	//}
+	//StartTimer();
 }
 
 void ConnectionUDP::HandleClose()
@@ -163,11 +172,12 @@ void ConnectionUDP::PostRecv()
 
 void ConnectionUDP::PostSend(void *json_data, int len)
 {
-
-	Pack pack;
-	//pack.encode_header(type,len);
-	//memcpy(pack.data,json_data,len);
-	m_io_strand.post(boost::bind(&ConnectionUDP::StartSend, shared_from_this(), pack,false));
+	std::vector<PackPtr> list;
+	Pack::EncodeData(json_data, len, list);
+	for (auto it = list.begin(); it!=list.end(); ++it)
+	{
+		m_io_strand.post(boost::bind(&ConnectionUDP::StartSend, shared_from_this(), *it, false));
+	}
 }
 
 boost::asio::ip::udp::socket & ConnectionUDP::GetSocket()
