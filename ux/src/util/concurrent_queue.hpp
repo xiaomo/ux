@@ -1,12 +1,13 @@
-#ifndef CONCURRENT_QUEUE_HPP_
-#define CONCURRENT_QUEUE_HPP_
+#ifndef UX_UTIL_CONCURRENT_QUEUE_HPP_
+#define UX_UTIL_CONCURRENT_QUEUE_HPP_
+
+#include <iostream>
+#include <vector>
+#include <queue>
 
 #include <boost/thread/condition.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <iostream>
-#include <vector>
-#include <queue>
 
 template<typename Data>
 class ConcurrentQueue
@@ -59,4 +60,4 @@ class ConcurrentQueue
 			the_queue.pop();
 		}
 };
-#endif /* CONCURRENT_QUEUE_HPP_ */
+#endif /* UX_UTIL_CONCURRENT_QUEUE_HPP_ */

@@ -1,20 +1,22 @@
-#ifndef VIDEO_DECODER_FF_H_
-#define VIDEO_DECODER_FF_H_
+#ifndef UX_MEDIA_VIDEO_DECODER_FF_H_
+#define UX_MEDIA_VIDEO_DECODER_FF_H_
 
-#include "video_decoder.h"
-#include "concurrent_queue.hpp"
-#include <boost/thread.hpp>
+#include "media/video_decoder.h"
 
 extern "C"
 {
-	#include <libavutil/opt.h>
-	#include <libavcodec/avcodec.h>
-	#include <libavutil/channel_layout.h>
-	#include <libavutil/common.h>
-	#include <libavutil/imgutils.h>
-	#include <libavutil/mathematics.h>
-	#include <libavutil/samplefmt.h>
+#include <libavutil/opt.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/common.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/mathematics.h>
+#include <libavutil/samplefmt.h>
 }
+
+#include <boost/thread.hpp>
+#include "util/concurrent_queue.hpp"
+
 
 #define INBUF_SIZE 4096
 
@@ -35,4 +37,4 @@ class VideoDecoderFF: public VideoDecoder
 		AVPacket avpkt;
 		//video_codec_handle              g_hdl_video_codec = NULL;       // ÊÓÆµ±à½âÂë¾ä±ú
 };
-#endif /* VIDEO_DECODER_FF_H_ */
+#endif /* UX_MEDIA_VIDEO_DECODER_FF_H_ */

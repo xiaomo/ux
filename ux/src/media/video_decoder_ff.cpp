@@ -1,5 +1,6 @@
-#include "video_decoder_ff.h"
-#include "utility.hpp"
+#include "media/video_decoder_ff.h"
+#include "util/utility.hpp"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/function/function_fwd.hpp>
 #include <boost/mem_fn.hpp>

@@ -1,11 +1,13 @@
-#ifndef VIDEO_DECODER_H_
-#define VIDEO_DECODER_H_
+#ifndef UX_MEDIA_VIDEO_DECODER_H_
+#define UX_MEDIA_VIDEO_DECODER_H_
 #include <stdio.h>
-#include "av_codec.h"
-#include "video_frame.h"
-#include "video_packet.h"
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include "media/av_codec.h"
+#include "media/video_frame.h"
+#include "media/video_packet.h"
+
 class VideoDecoder
 {
 	public:
@@ -25,4 +27,4 @@ class VideoDecoder
 		typedef boost::function<void(boost::shared_ptr<wokan::VideoFrame> video_frame)> callback_t;
 		callback_t _cb = NULL;
 };
-#endif /* VIDEO_DECODER_H_ */
+#endif /* UX_MEDIA_VIDEO_DECODER_H_ */

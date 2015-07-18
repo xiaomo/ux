@@ -1,11 +1,13 @@
-#ifndef AUDIO_DECODER_H_
-#define AUDIO_DECODER_H_
+#ifndef UX_MEDIA_AUDIO_DECODER_H_
+#define UX_MEDIA_AUDIO_DECODER_H_
+
 #include <stdio.h>
-#include "audio_frame.h"
-#include "audio_packet.h"
-#include "av_codec.h"
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include "media/av_codec.h"
+#include "media/audio_frame.h"
+#include "media/audio_packet.h"
+
 class AudioDecoder
 {
 	public:

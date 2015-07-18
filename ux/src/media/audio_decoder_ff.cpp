@@ -1,5 +1,4 @@
-#include "audio_decoder_ff.h"
-#include "utility.hpp"
+#include "media/audio_decoder_ff.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/function/function_fwd.hpp>
 #include <boost/mem_fn.hpp>
@@ -10,6 +9,7 @@
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include "util/utility.hpp"
 
 #define LOGE printf
 extern "C" void av_log_callback(void* ptr, int level, const char* fmt, va_list vl)

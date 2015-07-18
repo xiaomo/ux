@@ -9,6 +9,12 @@
 #include "io/connection_udp.h"
 #include "io/connection_udp_media.h"
 
+#include "media/audio_decoder_ff.h"
+#include "media/video_decoder_ff.h"
+
+typedef boost::shared_ptr<VideoDecoderFF> VideoDecoderPtr;
+typedef boost::shared_ptr<AudioDecoderFF> AudioDecoderPtr;
+
 //没有实现项目独有的命名空间
 class UX
 {
@@ -42,6 +48,11 @@ public:
 
 	void OnDataCallback(char *data);
 	void OnMediaDataCallback(int index, int type, uint8_t *data, int len);
+	
+
+	void OnVideoDecoded(boost::shared_ptr<wokan::VideoFrame> video_frame);
+	void OnAudioDecoded(boost::shared_ptr<wokan::AudioFrame> audio_frame);
+
 protected:
 	typedef boost::shared_ptr<Hive> HivePtr;
 	typedef boost::shared_ptr<ConnectionUDP> ConnectPtr;
@@ -56,6 +67,8 @@ private:
 	HallDataCallback hall_data_callback_ = NULL;
 	RoomDataCallback room_data_callback_ = NULL;
 	MediaDataCallback media_data_callback_ = NULL;
+	VideoDecoderPtr video_decoder;
+	AudioDecoderPtr audio_decoder;
 };
 
 #endif // UX_UX_H_

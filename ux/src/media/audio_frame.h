@@ -1,5 +1,6 @@
-#ifndef AUDIO_FRAME_H_
-#define AUDIO_FRAME_H_
+#ifndef UX_MEDIA_AUDIO_FRAME_H_
+#define UX_MEDIA_AUDIO_FRAME_H_
+
 #include <boost/cstdint.hpp>
 
 using boost::uint64_t;
@@ -37,4 +38,4 @@ namespace wokan
 			int len_per_sample;
 	};
 }
-#endif /* AUDIO_FRAME_H_ */
+#endif /* UX_MEDIA_AUDIO_FRAME_H_ */

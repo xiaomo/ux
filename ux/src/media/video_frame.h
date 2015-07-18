@@ -1,11 +1,8 @@
-#ifndef VIDEO_FRAME_H_
-#define VIDEO_FRAME_H_
-
-
-#include "av_codec.h"
+#ifndef UX_MEDIA_VIDEO_FRAME_H_
+#define UX_MEDIA_VIDEO_FRAME_H_
 #include <malloc.h>
-
 #include <boost/cstdint.hpp>
+#include "media/av_codec.h"
 
 using boost::uint64_t;
 using boost::uint32_t;
@@ -42,4 +39,4 @@ namespace wokan
 			wokan::FormatPixel fmt = wokan::FormatPixel::PIXEL_FMT_NV21;
 	};
 }
-#endif /* VIDEO_FRAME_H_ */
+#endif /* UX_MEDIA_VIDEO_FRAME_H_ */

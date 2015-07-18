@@ -1,5 +1,5 @@
-#ifndef AV_CODEC_H_
-#define AV_CODEC_H_
+#ifndef UX_MEDIA_AV_CODEC_H_
+#define UX_MEDIA_AV_CODEC_H_
 
 namespace wokan
 {
@@ -13,4 +13,4 @@ namespace wokan
 		PIXEL_FMT_NONE = -1, PIXEL_FMT_NV21
 	};
 }
-#endif /* AV_CODEC_H_ */
+#endif /* UX_MEDIA_AV_CODEC_H_ */

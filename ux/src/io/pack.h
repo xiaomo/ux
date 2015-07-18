@@ -280,7 +280,7 @@ public:
 		}
 		else
 		{
-			send_pack_header_->NeedAns != 0;
+			return send_pack_header_->NeedAns != 0;
 		}
 	}
 
@@ -292,7 +292,7 @@ public:
 		}
 		else
 		{
-			send_pack_header_->sID < send_pack_header_->eID;
+			return send_pack_header_->sID < send_pack_header_->eID;
 		}
 	}
 

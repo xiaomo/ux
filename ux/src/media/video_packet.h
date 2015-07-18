@@ -1,7 +1,7 @@
-#ifndef VIDEO_PACKET_H_
-#define VIDEO_PACKET_H_
+#ifndef UX_MEDIA_VIDEO_PACKET_H_
+#define UX_MEDIA_VIDEO_PACKET_H_
 #include <boost/cstdint.hpp>
-#include "av_codec.h"
+#include "media/av_codec.h"
 
 using boost::uint64_t;
 using boost::uint32_t;
@@ -35,4 +35,4 @@ namespace wokan
 			bool iframe=false;
 	};
 }
-#endif /* VIDEO_PACKET_H_ */
+#endif /* UX_MEDIA_VIDEO_PACKET_H_ */

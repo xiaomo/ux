@@ -1,5 +1,8 @@
-#ifndef AUDIO_DECODER_FF_H_
-#define AUDIO_DECODER_FF_H_
+#ifndef UX_MEDIA_AUDIO_DECODER_FF_H_
+#define UX_MEDIA_AUDIO_DECODER_FF_H_
+
+#include "media/audio_decoder.h"
+
 extern "C"
 {
 	#include <libavutil/opt.h>
@@ -15,11 +18,11 @@ extern "C"
 	#include <libavutil/pixfmt.h>
 	#include <libswresample/swresample.h>
 }
-#include "audio_decoder.h"
-#include "concurrent_queue.hpp"
-#include "av_codec.h"
 #include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include "util/concurrent_queue.hpp"
+#include "media/av_codec.h"
 
 class AudioDecoderFF: public AudioDecoder
 {
@@ -48,4 +51,4 @@ class AudioDecoderFF: public AudioDecoder
 		bool save2file = false;
 };
 
-#endif /* AUDIO_DECODER_FF_H_ */
+#endif /* UX_MEDIA_AUDIO_DECODER_FF_H_ */
