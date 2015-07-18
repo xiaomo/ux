@@ -111,4 +111,10 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Android.mk" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Application.mk" />
+  </ItemGroup>
 </Project>
