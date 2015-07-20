@@ -1,8 +1,11 @@
-#include <jni.h>
-
 #include "ux.h"
+
+#ifdef _WIN32
+#else
+#include <jni.h>
 #include "util/jni_helpers.h"
 #include "util/system_tools.h"
+#include "util/trace.h"
 
 #define JOWW(rettype, name) extern "C" rettype JNIEXPORT JNICALL Java_com_xchat_communication_Communication_##name
 
@@ -26,8 +29,6 @@ UX* GetUX(JNIEnv* jni, jobject jobj)
 
 JOWW(jlong, create)(JNIEnv* jni, jobject jobj)
 {
-	//LOGE("UX jni tid:%d", gettid());
-
 	UX * me = new UX();
 	if (!me)
 	{
@@ -162,149 +163,59 @@ JOWW(jboolean, init)(JNIEnv* jni, jobject jobj, jobject context, jobject jconfig
 //	return me->DelChannel(localSN);
 //}
 //
-//JOWW(jboolean, start)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	return me->Start();
-//}
-//
-//JOWW(jboolean, stop)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	return me->Stop();
-//}
-//
-//JOWW(jboolean, dispose)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	me->Dispose(jni, jobj);
-//	return true;
-//}
-//
-//JOWW(jboolean, destroy)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	delete me;
-//	me = NULL;
-//	return true;
-//}
-//
-//JOWW(jlong, getNativeVideoRender)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jlong)(me->GetVideoRender().get());
-//}
-//
-//JOWW(jlong, getNativeVideoCapture)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jlong)(me->GetVideoCapture().get());
-//}
-//
-//JOWW(jint, getVideoSendBitrate)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetVideoSendBitrate());
-//}
-//
-//JOWW(jint, getVideoReceiveBitrate)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetVideoReceiveBitrate());
-//}
-//
-//JOWW(jint, getAudioSendBitrate)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetAudioSendBitrate());
-//}
-//
-//JOWW(jint, getAudioReceiveBitrate)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetAudioReceiveBitrate());
-//}
-//
-//JOWW(jint, getCpuUsage)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetCpuUsage());
-//}
-//
-//JOWW(jint, getMemoryUsage)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jint)(me->GetMemoryUsage());
-//}
-//
-//JOWW(jstring, getDeviceInfo)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return NULL;
-//	}
-//	return Char2JString(jni, me->GetDeviceInfo());
-//}
-//
-//JOWW(jfloat, getCPUTemp)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return me->GetCpuTemp();
-//}
-//
+JOWW(jboolean, start)(JNIEnv* jni, jobject jobj)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return false;
+	}
+	return me->Start();
+}
+
+JOWW(jboolean, stop)(JNIEnv* jni, jobject jobj)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return false;
+	}
+	return me->Stop();
+}
+
+JOWW(jboolean, dispose)(JNIEnv* jni, jobject jobj)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return false;
+	}
+	me->Dispose(jni, jobj);
+	return true;
+}
+
+JOWW(jboolean, destroy)(JNIEnv* jni, jobject jobj)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return false;
+	}
+	delete me;
+	me = NULL;
+	return true;
+}
+
+JOWW(jlong, getNativeVideoRender)(JNIEnv* jni, jobject jobj)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return 0;
+	}
+	return (jlong)(me->GetVideoRender().get());
+}
+
 //JOWW(void, registerExternalVideoEncoder)(JNIEnv* jni, jobject jobj, jobject videoencoder)
 //{
 //	UX * me = GetUX(jni, jobj);
@@ -340,3 +251,4 @@ JOWW(jboolean, init)(JNIEnv* jni, jobject jobj, jobject context, jobject jconfig
 //	}
 //	UX::network_callback = jni->NewGlobalRef(callback);
 //}
+#endif //_WIN32

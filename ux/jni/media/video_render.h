@@ -1,6 +1,17 @@
 #ifndef VIDEORENDER_H_
 #define VIDEORENDER_H_
 
+#ifdef _WIN32
+class VideoRender
+{
+public:
+	VideoRender();
+	~VideoRender();
+
+private:
+
+};
+#else
 #include <stdio.h>
 extern "C"
 {
@@ -88,5 +99,7 @@ class VideoRender
 		void RelinkProgram(GLuint program);
 
 };
+
+#endif
 
 #endif /* VIDEORENDER_H_ */

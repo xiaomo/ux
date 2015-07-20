@@ -6,10 +6,16 @@
 
 #include "io/media_pack.h"
 
-ConnectionUDPMedia::ConnectionUDPMedia(boost::shared_ptr< Hive > hive)
-: m_hive(hive), m_socket(hive->GetService()), m_io_strand(hive->GetService()), m_timer(hive->GetService()),m_timer_interval(15000),
-work_thread(boost::bind(&ConnectionUDPMedia::Run,boost::ref(*this)))
+ConnectionUDPMedia::ConnectionUDPMedia(boost::shared_ptr< Hive > hive): 
+	m_hive(hive), 
+	m_socket(hive->GetService()),
+	m_io_strand(hive->GetService()), 
+	m_timer(hive->GetService()),
+	m_timer_interval(15000),
+	work_thread(boost::bind(&ConnectionUDPMedia::Run,boost::ref(*this)))
 {
+	video_decoder_ = boost::make_shared<VideoDecoderFF>(wokan::CodecID::CODEC_VIDEO_H264);
+	video_decoder_->RegisterVideoDecoderCallback(boost::bind(&ConnectionUDPMedia::OnVideoDecoded, boost::ref(*this), _1));
 }
 
 ConnectionUDPMedia::~ConnectionUDPMedia()
@@ -148,10 +154,7 @@ void ConnectionUDPMedia::RegroupPack(MediaPackPtr pack)
 		}
 		std::cout << alredy_count << "个小包组成一个大包：" << total_size << std::endl;
 		//完整包就送出去
-		if (data_callback_)
-		{
-			data_callback_(index, pack->GetType(), (uint8_t*)data,total_size);
-		}
+		OnGotMediaData(index, pack->GetType(),pack->GetAudioType(), (uint8_t*)data, total_size);
 	}
 }
 
@@ -174,10 +177,7 @@ void ConnectionUDPMedia::HandleRecv(const boost::system::error_code & error, int
 		else
 		{
 			//完整包就送出去
-			if (data_callback_)
-			{
-				data_callback_(index,pack->GetType(),(uint8_t *)pack->body(),pack->GetDataSize());
-			}
+			OnGotMediaData(index, pack->GetType(), pack->GetAudioType(), (uint8_t *)pack->body(), pack->GetDataSize());
 		}
 	}
 	//继续收
@@ -209,10 +209,12 @@ void ConnectionUDPMedia::Run()
 	}
 }
 
-void ConnectionUDPMedia::Open(int index,const std::string & host, uint16_t port, int user_id)
+void ConnectionUDPMedia::Open(int index, const std::string & host, uint16_t port, int user_id, VideoRenderPtr video_render, AudioTrackPtr audio_track)
 {
 	this->index = index;
 	this->user_id = user_id;
+	video_render_ = video_render;
+	audio_track_ = audio_track;
 	boost::system::error_code ec;
 	boost::asio::ip::udp::resolver resolver(m_hive->GetService());
 	boost::asio::ip::udp::resolver::query query(host, boost::lexical_cast< std::string >(port));
@@ -261,4 +263,53 @@ int32_t ConnectionUDPMedia::GetTimerInterval() const
 void ConnectionUDPMedia::SetTimerInterval(int32_t timer_interval)
 {
 	m_timer_interval = timer_interval;
+}
+
+//得到数据直接使用
+void ConnectionUDPMedia::OnGotMediaData(int index, int type, int audio_type, uint8_t *data, int len)
+{
+	if (type == 1)
+	{
+		if (!audio_decoder_)
+		{
+			//audio_type:0 aac ,1 mp3
+			audio_decoder_ = boost::make_shared<AudioDecoderFF>(audio_type == 0 ? wokan::CodecID::CODEC_AUDIO_AAC : wokan::CodecID::CODEC_AUDIO_MP3, 8000, 1);
+			audio_decoder_->RegisterAudioDecoderCallback(boost::bind(&ConnectionUDPMedia::OnAudioDecoded, boost::ref(*this), _1));
+		}
+		//audio
+		boost::shared_ptr<wokan::AudioPacket> audio_packet = boost::make_shared<wokan::AudioPacket>();
+		audio_packet->data_len = len;
+		audio_packet->data = data;
+		//audio_packet->timestamp = frame->frame_info.absolute_timestamp;
+		audio_packet->id = wokan::CODEC_AUDIO_AAC;
+		//memcpy((uint8_t*)audio_packet->data, (uint8_t*)frame->frame_stream + 16, audio_packet->data_len);
+		audio_decoder_->Feed(audio_packet);
+	}
+	else if (type == 2)
+	{
+		//video
+		boost::shared_ptr<wokan::VideoPacket> packet = boost::make_shared<wokan::VideoPacket>();
+		packet->id = wokan::CodecID::CODEC_VIDEO_H264;
+		packet->data_len = len;
+		packet->data = data;
+		packet->frame_type = 0;
+		video_decoder_->Feed(packet);
+	}
+}
+
+void ConnectionUDPMedia::OnVideoDecoded(boost::shared_ptr<wokan::VideoFrame> video_frame)
+{
+	std::cout << "OnVideoDecoded" << std::endl;
+	if (video_render_)
+	{
+		//video_render_->RenderFrame();
+	}
+}
+void ConnectionUDPMedia::OnAudioDecoded(boost::shared_ptr<wokan::AudioFrame> audio_frame)
+{
+	std::cout << "OnAudioDecoded" << std::endl;
+	if (audio_track_)
+	{
+		//audio_track_->Track();
+	}
 }

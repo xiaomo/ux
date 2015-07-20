@@ -332,6 +332,19 @@ public:
 		return av_type;
 	}
 
+	int GetAudioType()
+	{
+		if (av_type == AUDIO)
+		{
+			//ÒôÆµÊý¾Ý°ü
+			return media_pack_audio_->AudioMode;
+		}
+		else
+		{
+			return -10;
+		}
+	}
+
 private:
 	TMediaPack  *media_pack_ = NULL;
 	TAudioFramePackHeader  *media_pack_audio_ = NULL;

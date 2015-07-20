@@ -54,6 +54,12 @@
     <ClCompile Include="jni\ux.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="jni\media\audio_track.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\media\video_render.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni\io\connection_udp.h">
@@ -111,6 +117,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="jni\ux.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\video_render.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\audio_track.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

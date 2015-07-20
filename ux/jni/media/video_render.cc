@@ -1,5 +1,15 @@
 #include "media/video_render.h"
 
+#ifdef _WIN32
+VideoRender::VideoRender()
+{
+}
+
+VideoRender::~VideoRender()
+{
+}
+#else
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -240,13 +250,13 @@ VideoRender* GetVideoRender(JNIEnv* jni, jobject jobj)
 	return reinterpret_cast<VideoRender*>(j_p);
 }
 
-extern "C" JNIEXPORT jlong Java_com_hm_wokan_media_VideoRenderView_create(JNIEnv * env, jobject object)
+extern "C" JNIEXPORT jlong Java_com_xchat_communication_VideoRenderView_create(JNIEnv * env, jobject object)
 {
 	VideoRender * vr = new VideoRender();
 	return (jlong) vr;
 }
 
-extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_dispose(JNIEnv * env, jobject object)
+extern "C" JNIEXPORT void Java_com_xchat_communication_VideoRenderView_dispose(JNIEnv * env, jobject object)
 {
 	VideoRender * vr = GetVideoRender(env, object);
 	if (!vr)
@@ -257,7 +267,7 @@ extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_dispose(JNIEnv
 	vr = NULL;
 }
 
-extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLInit(JNIEnv * env, jobject object)
+extern "C" JNIEXPORT void Java_com_xchat_communication_VideoRenderView_gLInit(JNIEnv * env, jobject object)
 {
 	VideoRender * vr = GetVideoRender(env, object);
 	if (!vr)
@@ -277,7 +287,7 @@ extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLInit(JNIEnv 
 	glGenTextures(1, &vr->g_texVId);
 }
 
-extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLUninit(JNIEnv * env, jobject object)
+extern "C" JNIEXPORT void Java_com_xchat_communication_VideoRenderView_gLUninit(JNIEnv * env, jobject object)
 {
 	VideoRender * vr = GetVideoRender(env, object);
 	if (!vr)
@@ -286,7 +296,7 @@ extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLUninit(JNIEn
 	}
 }
 
-extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLResize(JNIEnv * env, jobject object, jint width, jint height)
+extern "C" JNIEXPORT void Java_com_xchat_communication_VideoRenderView_gLResize(JNIEnv * env, jobject object, jint width, jint height)
 {
 	VideoRender * vr = GetVideoRender(env, object);
 	if (!vr)
@@ -297,7 +307,7 @@ extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLResize(JNIEn
 	vr->CheckGlError("glViewport");
 }
 
-extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLRender(JNIEnv * env, jobject object)
+extern "C" JNIEXPORT void Java_com_xchat_communication_VideoRenderView_gLRender(JNIEnv * env, jobject object)
 {
 	VideoRender * vr = GetVideoRender(env, object);
 	if (!vr || !vr->buf)
@@ -319,3 +329,4 @@ extern "C" JNIEXPORT void Java_com_hm_wokan_media_VideoRenderView_gLRender(JNIEn
 		vr->RenderFrame();
 	}
 }
+#endif //_WIN32

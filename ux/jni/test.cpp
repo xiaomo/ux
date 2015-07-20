@@ -20,25 +20,14 @@ extern "C"
 
 void HallDataCallback(char *data)
 {
-	std::cout << "receive hall data:"<<boost::this_thread::get_id()<< std::endl;
+	std::cout << "receive hall tid:"<<boost::this_thread::get_id()<<" data:"<<data<< std::endl;
 }
 
 void RoomDataCallback(int roomid, char *data)
 {
-	std::cout<<"receive room data:"<<roomid<< " " << data << std::endl;
+	std::cout << "receive room tid:" << boost::this_thread::get_id() << " data:" << data << std::endl;
 }
 
-void MediaDataCallback(int index, int type, uint8_t *data, int len)
-{
-	if (type == 1)
-	{
-		std::cout << "receive audio data:" << index << " " << len <<"-"<< boost::this_thread::get_id() << std::endl;
-	}
-	else if (type == 2)
-	{
-		std::cout << "receive video data:" << index << " " << len << "-" << boost::this_thread::get_id() << std::endl;
-	}
-}
 
 int main()
 {
@@ -57,8 +46,7 @@ int main()
 	//ux_ptr->StartRoom(std::string("222.186.3.27"), 4100);
 
 	//开始房间媒体通信
-	ux_ptr->RegisterMediaDataCallback(boost::bind(MediaDataCallback,_1,_2,_3,_4));
-	ux_ptr->AddMedia(std::string("222.186.3.27"), 4111, 1002);
+	ux_ptr->AddMedia(std::string("222.186.3.27"), 4111, 1002, boost::shared_ptr<VideoRender>(new VideoRender()), boost::shared_ptr<AudioTrack>(new AudioTrack()));
 	
 
 	char *json = "{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}{\"Mac\":\"1043B56CD666AFCEDFCFC0718C0DB807\",\"Cmd\":10103,\"UserPass\":\"098F6BCD4621D373CADE4E832627B4F6\",\"UserID\":10000}";

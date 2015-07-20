@@ -39,7 +39,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\android\android-ndk-r10d\platforms\android-14\arch-arm\usr\include;$(ProjectDir)\jni;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\jni;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,7 +82,9 @@
     <ClCompile Include="jni\io\media_pack.cc" />
     <ClCompile Include="jni\io\pack.cc" />
     <ClCompile Include="jni\media\audio_decoder_ff.cc" />
+    <ClCompile Include="jni\media\audio_track.cc" />
     <ClCompile Include="jni\media\video_decoder_ff.cc" />
+    <ClCompile Include="jni\media\video_render.cc" />
     <ClCompile Include="jni\test.cpp" />
     <ClCompile Include="jni\ux.cc" />
   </ItemGroup>
@@ -97,11 +99,13 @@
     <ClInclude Include="jni\media\audio_decoder_ff.h" />
     <ClInclude Include="jni\media\audio_frame.h" />
     <ClInclude Include="jni\media\audio_packet.h" />
+    <ClInclude Include="jni\media\audio_track.h" />
     <ClInclude Include="jni\media\av_codec.h" />
     <ClInclude Include="jni\media\video_decoder.h" />
     <ClInclude Include="jni\media\video_decoder_ff.h" />
     <ClInclude Include="jni\media\video_frame.h" />
     <ClInclude Include="jni\media\video_packet.h" />
+    <ClInclude Include="jni\media\video_render.h" />
     <ClInclude Include="jni\util\concurrent_queue.hpp" />
     <ClInclude Include="jni\util\trace.h" />
     <ClInclude Include="jni\util\utility.hpp" />

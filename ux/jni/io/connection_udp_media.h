@@ -17,8 +17,16 @@
 #include <boost/thread.hpp>
 
 #include "io/hive.h"
+#include "media/audio_decoder_ff.h"
+#include "media/video_decoder_ff.h"
+#include "media/video_render.h"
+#include "media/audio_track.h"
 
 typedef boost::shared_ptr<MediaPack> MediaPackPtr;
+typedef boost::shared_ptr<VideoDecoderFF> VideoDecoderPtr;
+typedef boost::shared_ptr<AudioDecoderFF> AudioDecoderPtr;
+typedef boost::shared_ptr<VideoRender> VideoRenderPtr;
+typedef boost::shared_ptr<AudioTrack> AudioTrackPtr;
 
 using boost::uint64_t;
 using boost::uint32_t;
@@ -38,8 +46,6 @@ class ConnectionUDPMedia;
 class ConnectionUDPMedia : public boost::enable_shared_from_this< ConnectionUDPMedia >
 {
 	friend class Hive;
-protected:
-	typedef boost::function<void(int index, int type, uint8_t *data, int len)> DataCallback;
 private:
 	boost::shared_ptr< Hive > m_hive;
 	boost::asio::ip::udp::socket m_socket;
@@ -58,10 +64,13 @@ private:
 	bool exited;
 	boost::thread work_thread;
 
-	DataCallback data_callback_;
-
 	int index;
 	int user_id;
+
+	VideoDecoderPtr video_decoder_;
+	AudioDecoderPtr audio_decoder_;
+	VideoRenderPtr video_render_;
+	AudioTrackPtr audio_track_;
 public:
 	ConnectionUDPMedia(boost::shared_ptr< Hive > hive);
 	virtual ~ConnectionUDPMedia();
@@ -87,14 +96,12 @@ private:
 	//工作线程
 	void Run();
 
+	//获取到了音视频
+	void OnGotMediaData(int index, int type,int audio_type, uint8_t *data, int len);
+	//解码回调
+	void OnVideoDecoded(boost::shared_ptr<wokan::VideoFrame> video_frame);
+	void OnAudioDecoded(boost::shared_ptr<wokan::AudioFrame> audio_frame);
 public:
-
-	template<typename T>
-	inline void RegisterDataCallback(T cb)
-	{
-		this->data_callback_ = cb;
-	}
-
 	boost::shared_ptr< Hive > GetHive();
 
 	boost::asio::ip::udp::socket & GetSocket();
@@ -105,7 +112,7 @@ public:
 
 	int32_t GetTimerInterval() const;
 
-	void Open(int index,const std::string & host, uint16_t port, int user_id);
+	void Open(int index, const std::string & host, uint16_t port, int user_id, VideoRenderPtr video_render, AudioTrackPtr audio_track);
 
 	void PostSendLeave();
 
