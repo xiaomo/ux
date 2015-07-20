@@ -15,106 +15,103 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ux.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\test.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ux_jni.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\hive.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\media_pack.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\connection_udp.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\json_pack.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\pack.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\connection_udp_media.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\media\audio_decoder_ff.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\media\video_decoder_ff.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\ux.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network\MediaPack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\hive.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\media_pack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\connection_udp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\json_pack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\pack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\connection_udp_media.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_decoder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_decoder_ff.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_frame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\audio_packet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\av_codec.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_decoder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_decoder_ff.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_frame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\media\video_packet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\util\utility.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\util\concurrent_queue.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\util\trace.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="Android.mk" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Application.mk" />
+    <None Include="jni\Android.mk" />
+    <None Include="jni\Application.mk" />
+    <None Include="libs\armeabi-v7a\libxchat.so" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="jni\io\connection_udp.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\io\connection_udp_media.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\io\hive.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\io\json_pack.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\io\media_pack.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\io\pack.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\media\audio_decoder_ff.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\media\video_decoder_ff.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\ux.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni\io\connection_udp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\io\connection_udp_media.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\io\hive.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\io\json_pack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\io\media_pack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\io\pack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\audio_decoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\audio_decoder_ff.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\audio_frame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\audio_packet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\av_codec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\video_decoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\video_decoder_ff.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\video_frame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\media\video_packet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\util\concurrent_queue.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\util\trace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\util\utility.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\ux.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

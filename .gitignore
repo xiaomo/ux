@@ -29,3 +29,6 @@
 /*.sdf
 /*.opensdf
 Debug
+/ux/jni/third_party
+/ux/obj
+/ux/libs

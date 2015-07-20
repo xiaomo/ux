@@ -23,7 +23,11 @@ AudioDecoderFF::AudioDecoderFF(wokan::CodecID id, int sample_rate, int nb_channe
 	if (save2file)
 	{
 		remove(filename);
+#ifdef _WIN32
 		fopen_s(&file,filename, "wb");
+#else
+		file=fopen(filename, "wb");
+#endif
 		if (!file)
 		{
 			LOGE("Could not open %s\n", filename);
