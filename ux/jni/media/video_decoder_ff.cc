@@ -1,5 +1,4 @@
 #include "media/video_decoder_ff.h"
-#include "util/utility.hpp"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function/function_fwd.hpp>
@@ -10,7 +9,8 @@
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-#define LOGE printf
+#include "util/utility.hpp"
+#include "util/trace.h"
 
 VideoDecoderFF::VideoDecoderFF(wokan::CodecID id)
 {

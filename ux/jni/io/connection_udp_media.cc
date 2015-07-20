@@ -5,6 +5,7 @@
 #include <boost/interprocess/detail/atomic.hpp>
 
 #include "io/media_pack.h"
+#include "util/trace.h"
 
 ConnectionUDPMedia::ConnectionUDPMedia(boost::shared_ptr< Hive > hive): 
 	m_hive(hive), 
@@ -155,6 +156,7 @@ void ConnectionUDPMedia::RegroupPack(MediaPackPtr pack)
 		std::cout << alredy_count << "个小包组成一个大包：" << total_size << std::endl;
 		//完整包就送出去
 		OnGotMediaData(index, pack->GetType(),pack->GetAudioType(), (uint8_t*)data, total_size);
+		free(data);
 	}
 }
 
@@ -270,6 +272,8 @@ void ConnectionUDPMedia::OnGotMediaData(int index, int type, int audio_type, uin
 {
 	if (type == 1)
 	{
+		//android还不支持解码
+		return;
 		if (!audio_decoder_)
 		{
 			//audio_type:0 aac ,1 mp3
@@ -279,10 +283,10 @@ void ConnectionUDPMedia::OnGotMediaData(int index, int type, int audio_type, uin
 		//audio
 		boost::shared_ptr<wokan::AudioPacket> audio_packet = boost::make_shared<wokan::AudioPacket>();
 		audio_packet->data_len = len;
-		audio_packet->data = data;
+		audio_packet->data = (uint8_t*)malloc(audio_packet->data_len);
+		memcpy(audio_packet->data, data, audio_packet->data_len);
 		//audio_packet->timestamp = frame->frame_info.absolute_timestamp;
-		audio_packet->id = wokan::CODEC_AUDIO_AAC;
-		//memcpy((uint8_t*)audio_packet->data, (uint8_t*)frame->frame_stream + 16, audio_packet->data_len);
+		//audio_packet->id = wokan::CODEC_AUDIO_AAC;
 		audio_decoder_->Feed(audio_packet);
 	}
 	else if (type == 2)
@@ -291,7 +295,8 @@ void ConnectionUDPMedia::OnGotMediaData(int index, int type, int audio_type, uin
 		boost::shared_ptr<wokan::VideoPacket> packet = boost::make_shared<wokan::VideoPacket>();
 		packet->id = wokan::CodecID::CODEC_VIDEO_H264;
 		packet->data_len = len;
-		packet->data = data;
+		packet->data = (uint8_t*)malloc(packet->data_len);
+		memcpy(packet->data, data, packet->data_len);
 		packet->frame_type = 0;
 		video_decoder_->Feed(packet);
 	}
@@ -299,7 +304,7 @@ void ConnectionUDPMedia::OnGotMediaData(int index, int type, int audio_type, uin
 
 void ConnectionUDPMedia::OnVideoDecoded(boost::shared_ptr<wokan::VideoFrame> video_frame)
 {
-	std::cout << "OnVideoDecoded" << std::endl;
+	LOGE("OnVideoDecoded");
 	if (video_render_)
 	{
 		//video_render_->RenderFrame();
@@ -307,7 +312,7 @@ void ConnectionUDPMedia::OnVideoDecoded(boost::shared_ptr<wokan::VideoFrame> vid
 }
 void ConnectionUDPMedia::OnAudioDecoded(boost::shared_ptr<wokan::AudioFrame> audio_frame)
 {
-	std::cout << "OnAudioDecoded" << std::endl;
+	LOGE("OnAudioDecoded");
 	if (audio_track_)
 	{
 		//audio_track_->Track();

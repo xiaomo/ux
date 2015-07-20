@@ -55,7 +55,6 @@ private:
 	std::vector<ConnectMediaPtr> media_connect_vector;
 	HallDataCallback hall_data_callback_ = NULL;
 	RoomDataCallback room_data_callback_ = NULL;
-
 };
 
 #endif // UX_UX_H_

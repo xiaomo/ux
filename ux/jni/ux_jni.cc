@@ -2,6 +2,7 @@
 
 #ifdef _WIN32
 #else
+#include <string>
 #include <jni.h>
 #include "util/jni_helpers.h"
 #include "util/system_tools.h"
@@ -9,9 +10,68 @@
 
 #define JOWW(rettype, name) extern "C" rettype JNIEXPORT JNICALL Java_com_xchat_communication_Communication_##name
 
+JavaVM* g_vm = NULL;
+jobject g_hall_data_callback = NULL;
+jobject g_room_data_callback = NULL;
+
+void HallDataCallback(char *data)
+{
+	if (g_hall_data_callback == NULL) return;
+
+	JNIEnv* env = NULL;
+	g_vm->AttachCurrentThread(&env, 0);
+
+	jclass javaClass = env->GetObjectClass(g_hall_data_callback);
+	if (NULL == javaClass)
+	{
+		LOGE("Find javaClass fail.");
+		return;
+	}
+
+	jmethodID javaCallback = env->GetMethodID(javaClass, "onHallData", "(Ljava/lang/String;)V");
+	if (NULL == javaCallback)
+	{
+		LOGE("Find method onNetworkChange() fail.");
+		return;
+	}
+	jstring jstr = Char2JString(env, data);
+	env->CallVoidMethod(g_hall_data_callback, javaCallback, jstr);
+
+	env->DeleteLocalRef(javaClass);
+	g_vm->DetachCurrentThread();
+}
+
+void RoomDataCallback(int roomid, char *data)
+{
+	if (g_room_data_callback == NULL) return;
+
+	JNIEnv* env = NULL;
+	g_vm->AttachCurrentThread(&env, 0);
+
+	jclass javaClass = env->GetObjectClass(g_room_data_callback);
+	if (NULL == javaClass)
+	{
+		LOGE("Find javaClass fail.");
+		return;
+	}
+
+	jmethodID javaCallback = env->GetMethodID(javaClass, "onRoomData", "(ILjava/lang/String;)V");
+	if (NULL == javaCallback)
+	{
+		LOGE("Find method onNetworkChange() fail.");
+		return;
+	}
+	jstring jstr = Char2JString(env, data);
+	env->CallVoidMethod(g_room_data_callback, javaCallback, roomid,jstr);
+
+	env->DeleteLocalRef(javaClass);
+	g_vm->DetachCurrentThread();
+
+}
+
 extern "C" jint JNIEXPORT JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-	//UX::g_vm = vm;
+	g_vm = vm;
 	return JNI_VERSION_1_4;
 }
 
@@ -37,218 +97,108 @@ JOWW(jlong, create)(JNIEnv* jni, jobject jobj)
 	return jlongFromPointer(me);
 }
 
-JOWW(jboolean, init)(JNIEnv* jni, jobject jobj, jobject context, jobject jconfig)
-{
-	UX * me = GetUX(jni, jobj);
-	if (!me) {
-		return false;
-	}
-	//wokan::Config config;
-	//jclass classParam = jni->FindClass("com/hm/wokan/media/Config");
-	//if (classParam) {
-	//	jfieldID field = jni->GetFieldID(classParam, "audioSampleRate", "I");
-	//	if (field) {
-	//		config.audio_sample_rate = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "audioBitrate", "I");
-	//	if (field) {
-	//		config.audio_bitrate = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "audioChannel", "I");
-	//	if (field) {
-	//		config.audio_channel = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "audioCodec", "I");
-	//	if (field) {
-	//		config.audio_codec = static_cast<wokan::CodecID>((uint32)jni->GetIntField(jconfig, field));
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoCode", "I");
-	//	if (field) {
-	//		config.video_codec = static_cast<wokan::CodecID>((uint32)jni->GetIntField(jconfig, field));
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoWidth", "I");
-	//	if (field) {
-	//		config._video_width = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoHeight", "I");
-	//	if (field) {
-	//		config._video_height = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoBitrate", "I");
-	//	if (field) {
-	//		config._video_bitrate = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoFps", "I");
-	//	if (field) {
-	//		config._video_fps = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "videoIntervalIframe", "I");
-	//	if (field) {
-	//		config._video_interval_iframe = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "debug", "Z");
-	//	if (field) {
-	//		config.debug = (bool)jni->GetBooleanField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "needAudioProcess", "Z");
-	//	if (field)
-	//	{
-	//		config.audio_process = (bool)jni->GetBooleanField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "fastest", "Z");
-	//	if (field)
-	//	{
-	//		config.fastest = (bool)jni->GetBooleanField(jconfig, field);
-	//	}
-	//	field = jni->GetFieldID(classParam, "displayRotation", "I");
-	//	if (field) {
-	//		config.displayRotation = (uint32)jni->GetIntField(jconfig, field);
-	//	}
-	//}
-
-	//if (config.displayRotation == 0 || config.displayRotation == 180)
-	//{
-	//	int temp = config._video_width;
-	//	config._video_width = config._video_height;
-	//	config._video_height = temp;
-	//}
-
-	//return me->Init(jni, jobj, context, config);
-}
-
-//JOWW(jboolean, authorize)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	return me->Authorize();
-//}
-//
-//JOWW(jboolean, addChannel)(JNIEnv* jni, jobject jobj, jint type, jstring server, jshort port, jstring sn, jstring username, jstring pwd,
-//	jboolean request_video, jboolean direct_nvs)
-//{
-//	char* ip = JString2Char(jni, server);
-//	char* localSN = JString2Char(jni, sn);
-//	char* localUsername = JString2Char(jni, username);
-//	char* localPwd = JString2Char(jni, pwd);
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//
-//	boost::shared_ptr<NvsChannel> channel = boost::make_shared<NvsChannel>(static_cast<ChannelType>(type), ip, port, localSN, localUsername, localPwd, request_video, direct_nvs);
-//	bool res = me->AddChannel(channel);
-//	free(ip);
-//	ip = NULL;
-//	free(localSN);
-//	localSN = NULL;
-//	free(localUsername);
-//	localUsername = NULL;
-//	free(localPwd);
-//	localPwd = NULL;
-//	return res;
-//}
-//
-//JOWW(jboolean, delChannel)(JNIEnv* jni, jobject jobj, jstring sn)
-//{
-//	char* localSN = JString2Char(jni, sn);
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return false;
-//	}
-//	return me->DelChannel(localSN);
-//}
-//
-JOWW(jboolean, start)(JNIEnv* jni, jobject jobj)
+JOWW(void, exit)(JNIEnv* jni, jobject jobj)
 {
 	UX * me = GetUX(jni, jobj);
 	if (!me)
 	{
-		return false;
+		return ;
 	}
-	return me->Start();
+	me->Exit();
 }
 
-JOWW(jboolean, stop)(JNIEnv* jni, jobject jobj)
+JOWW(void, registerOnHallDataCallback)(JNIEnv* jni, jobject jobj, jobject callback)
 {
 	UX * me = GetUX(jni, jobj);
 	if (!me)
 	{
-		return false;
+		return;
 	}
-	return me->Stop();
+	if (!g_hall_data_callback)
+	{
+		jni->DeleteGlobalRef(g_hall_data_callback);
+	}
+	g_hall_data_callback = jni->NewGlobalRef(callback);
+	me->RegisterHallDataCallback(boost::bind(HallDataCallback, _1));
 }
 
-JOWW(jboolean, dispose)(JNIEnv* jni, jobject jobj)
+JOWW(void, registerOnRoomDataCallback)(JNIEnv* jni, jobject jobj, jobject callback)
 {
 	UX * me = GetUX(jni, jobj);
 	if (!me)
 	{
-		return false;
+		return;
 	}
-	me->Dispose(jni, jobj);
-	return true;
+	if (!g_room_data_callback)
+	{
+		jni->DeleteGlobalRef(g_room_data_callback);
+	}
+	g_room_data_callback = jni->NewGlobalRef(callback);
+	me->RegisterRoomDataCallback(boost::bind(RoomDataCallback, _1, _2));
 }
 
-JOWW(jboolean, destroy)(JNIEnv* jni, jobject jobj)
+JOWW(void, startHall)(JNIEnv* jni, jobject jobj, jstring ip, int port)
 {
 	UX * me = GetUX(jni, jobj);
 	if (!me)
 	{
-		return false;
+		return;
 	}
-	delete me;
-	me = NULL;
-	return true;
+	char * data = JString2Char(jni, ip);
+	std::string ipstr = data;
+	me->StartHall(ipstr, port);
+	free(data);
 }
 
-JOWW(jlong, getNativeVideoRender)(JNIEnv* jni, jobject jobj)
+JOWW(void, startRoom)(JNIEnv* jni, jobject jobj, jstring ip, int port)
 {
 	UX * me = GetUX(jni, jobj);
 	if (!me)
 	{
-		return 0;
+		return;
 	}
-	return (jlong)(me->GetVideoRender().get());
+	char * data = JString2Char(jni, ip);
+	std::string ipstr = data;
+	me->StartRoom(ipstr, port);
+	free(data);
 }
 
-//JOWW(void, registerExternalVideoEncoder)(JNIEnv* jni, jobject jobj, jobject videoencoder)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return;
-//	}
-//	boost::shared_ptr<VideoEncoderHardware> encoder = boost::make_shared<VideoEncoderHardware>(wokan::CodecID::CODEC_VIDEO_H264, 200 * 1000, 10, 5, 240, 320, UX::g_vm, videoencoder);
-//	me->RegisterExternalVideoEncoder(encoder);
-//}
-//
-//JOWW(jlong, getNativeAudioRecoder)(JNIEnv* jni, jobject jobj)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me)
-//	{
-//		return 0;
-//	}
-//	return (jlong)(me->GetAudioRecoder().get());
-//}
-//
-//JOWW(void, registerOnNetworkChangeCallback)(JNIEnv* jni, jobject jobj, jobject callback)
-//{
-//	UX * me = GetUX(jni, jobj);
-//	if (!me || !callback)
-//	{
-//		return;
-//	}
-//	if (UX::network_callback != NULL)
-//	{
-//		jni->DeleteGlobalRef(UX::network_callback);
-//		UX::network_callback = NULL;
-//	}
-//	UX::network_callback = jni->NewGlobalRef(callback);
-//}
+JOWW(void, addMedia)(JNIEnv* jni, jobject jobj, jstring ip, int port, int user_id, jobject video_render, jobject audio_track)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return;
+	}
+	char * data = JString2Char(jni, ip);
+	std::string ipstr = data;
+	me->AddMedia(ipstr, port, user_id, boost::shared_ptr<VideoRender>(new VideoRender()), boost::shared_ptr<AudioTrack>(new AudioTrack()));
+	free(data);
+}
+
+
+JOWW(void, sendHallData)(JNIEnv* jni, jobject jobj,jstring json_data)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return;
+	}
+	char * data = JString2Char(jni,json_data);
+	me->SendHallData(data, strlen(data));
+	free(data);
+}
+
+JOWW(void, sendRoomData)(JNIEnv* jni, jobject jobj, jstring json_data)
+{
+	UX * me = GetUX(jni, jobj);
+	if (!me)
+	{
+		return;
+	}
+	char * data = JString2Char(jni, json_data);
+	me->SendRoomData(data, strlen(data));
+	free(data);
+}
+
 #endif //_WIN32

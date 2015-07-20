@@ -9,9 +9,10 @@
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
-#include "util/utility.hpp"
 
-#define LOGE printf
+#include "util/utility.hpp"
+#include "util/trace.h"
+
 extern "C" void av_log_callback(void* ptr, int level, const char* fmt, va_list vl)
 {
 	LOGE(fmt,vl);
